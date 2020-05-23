@@ -1,6 +1,6 @@
 # AgileObjects.Functions.Email
 
-An Azure Function to send an email to a configured recipient.
+A .NET Core 3.1 Azure Function to send an email to a configured recipient.
 
 ## Setup
 
