@@ -9,5 +9,9 @@ namespace AgileObjects.Functions.Email
         public ICredentialsByHost Credentials { get; set; }
         
         public string Recipient { get; set; }
+
+        public bool IsSubjectRequired { get; set; }
+
+        public string FallbackSubject { get; set; }
     }
 }

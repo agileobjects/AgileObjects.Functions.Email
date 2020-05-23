@@ -12,6 +12,8 @@ namespace AgileObjects.Functions.Email
 
     public class SendEmail
     {
+        private static readonly string _functionName = typeof(SendEmail).FullName;
+
         private readonly SmtpSettings _settings;
 
         public SendEmail(SmtpSettings settings)
@@ -24,7 +26,7 @@ namespace AgileObjects.Functions.Email
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest request,
             ILogger log)
         {
-            log.LogTrace("AgileObjects.Functions.Email.SendEmail triggered");
+            log.LogTrace(_functionName + " triggered");
 
             var form = await request.ReadFormAsync();
 
@@ -62,8 +64,11 @@ namespace AgileObjects.Functions.Email
 
         private bool TryGetEmailDetails(IFormCollection form, out MailMessage mail, out string errorMessage)
         {
+            var subjectRequired = _settings.IsSubjectRequired;
+
             if (!form.TryGetValue("name", out var name) ||
                 !form.TryGetValue("email", out var email) ||
+                (subjectRequired && !form.TryGetValue("subject", out var subject)) ||
                 !form.TryGetValue("message", out var message))
             {
                 mail = null;
@@ -73,6 +78,7 @@ namespace AgileObjects.Functions.Email
 
             if (string.IsNullOrWhiteSpace(name) ||
                 string.IsNullOrWhiteSpace(email) ||
+               (subjectRequired && string.IsNullOrWhiteSpace(subject)) ||
                 string.IsNullOrWhiteSpace(message))
             {
                 mail = null;
@@ -80,25 +86,44 @@ namespace AgileObjects.Functions.Email
                 return false;
             }
 
-            try
+            if (EmailInvalid(email, out mail, out errorMessage))
             {
-                new MailAddress(email);
-            }
-            catch (FormatException)
-            {
-                mail = null;
-                errorMessage = "Invalid from email.";
                 return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(subject))
+            {
+                subject = _settings.FallbackSubject;
             }
 
             mail = new MailMessage(
                 $"{name} {email}",
                 _settings.Recipient,
-                "Email from agileobjects.co.uk",
+                subject.ToString(),
                 message);
 
             errorMessage = null;
             return true;
+        }
+
+        private static bool EmailInvalid(
+            string email, 
+            out MailMessage mail, 
+            out string errorMessage)
+        {
+            mail = null;
+            
+            try
+            {
+                new MailAddress(email);
+                errorMessage = null;
+                return false;
+            }
+            catch (FormatException)
+            {
+                errorMessage = "Invalid from email.";
+                return true;
+            }
         }
     }
 }

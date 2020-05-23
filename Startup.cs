@@ -31,7 +31,9 @@ namespace AgileObjects.Functions.Email
             {
                 Host = _configuration["SmtpHost"],
                 Credentials = credentials,
-                Recipient = _configuration["SmtpRecipient"]
+                Recipient = _configuration["Recipient"],
+                IsSubjectRequired = bool.TryParse(_configuration["IsSubjectRequired"], out var value) && value,
+                FallbackSubject = _configuration["FallbackSubject"]
             };
 
             builder.Services.AddSingleton(settings);
