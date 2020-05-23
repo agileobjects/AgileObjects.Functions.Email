@@ -13,5 +13,15 @@ namespace AgileObjects.Functions.Email
         public bool IsSubjectRequired { get; set; }
 
         public string FallbackSubject { get; set; }
+
+        public bool UseRedirectResponse { get; set; }
+
+        public bool UseOkResponse => !UseRedirectResponse;
+
+        public bool AllowUserRedirectUrls { get; set; }
+
+        public bool HasNoSuccessRedirectUrl => string.IsNullOrEmpty(SuccessRedirectUrl);
+
+        public string SuccessRedirectUrl { get; set; }
     }
 }

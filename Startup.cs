@@ -32,8 +32,11 @@ namespace AgileObjects.Functions.Email
                 Host = _configuration["SmtpHost"],
                 Credentials = credentials,
                 Recipient = _configuration["Recipient"],
-                IsSubjectRequired = bool.TryParse(_configuration["IsSubjectRequired"], out var value) && value,
-                FallbackSubject = _configuration["FallbackSubject"]
+                IsSubjectRequired = _configuration.GetValue("IsSubjectRequired", defaultValue: false),
+                FallbackSubject = _configuration["FallbackSubject"] ?? "Email received",
+                UseRedirectResponse = _configuration.GetValue("UseRedirectResponse", defaultValue: false),
+                AllowUserRedirectUrls = _configuration.GetValue("AllowUserRedirectUrls", defaultValue: false),
+                SuccessRedirectUrl = _configuration["SuccessRedirectUrl"]
             };
 
             builder.Services.AddSingleton(settings);

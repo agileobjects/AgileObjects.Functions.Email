@@ -52,7 +52,27 @@ namespace AgileObjects.Functions.Email
 
                 log.LogInformation("Email sent.");
 
-                return new OkResult();
+                if (_settings.UseOkResponse)
+                {
+                    return new OkResult();
+                }
+
+                if (_settings.AllowUserRedirectUrls)
+                {
+                    if (form.TryGetValue("redirectUrl", out var url))
+                    {
+                        log.LogInformation($"Redirecting to '{url}'.");
+
+                        return new RedirectResult(url);
+                    }
+
+                    if (_settings.HasNoSuccessRedirectUrl)
+                    {
+                        return new BadRequestErrorMessageResult("Missing redirect URL.");
+                    }
+                }
+
+                return new RedirectResult(_settings.SuccessRedirectUrl);
             }
             catch (Exception ex)
             {
@@ -86,8 +106,10 @@ namespace AgileObjects.Functions.Email
                 return false;
             }
 
-            if (EmailInvalid(email, out mail, out errorMessage))
+            if (EmailInvalid(email))
             {
+                mail = null;
+                errorMessage = $"Invalid from email address '{email}'.";
                 return false;
             }
 
@@ -106,22 +128,15 @@ namespace AgileObjects.Functions.Email
             return true;
         }
 
-        private static bool EmailInvalid(
-            string email, 
-            out MailMessage mail, 
-            out string errorMessage)
+        private static bool EmailInvalid(string email)
         {
-            mail = null;
-            
             try
             {
                 new MailAddress(email);
-                errorMessage = null;
                 return false;
             }
             catch (FormatException)
             {
-                errorMessage = "Invalid from email.";
                 return true;
             }
         }
