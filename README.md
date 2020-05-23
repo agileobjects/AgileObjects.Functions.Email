@@ -20,8 +20,8 @@ A .NET Core 3.1 Azure Function to send an email to a configured recipient.
 | IsSubjectRequired     | [optional] A boolean value indicating whether the posted form data must contain an email subject. Defaults to false. |
 | FallbackSubject       | [optional] The subject for the email to send, if one is optional and not supplied in posted form data. Defaults to 'Email received'. |
 | UseRedirectResponse   | [optional] A boolean value indicating whether the function should respond with a redirect (302) response or an OK (200) response. Default to false, yielding OK responses. |
-| AllowUserRedirectUrls | [optional] A boolean value indicating whether the function should redirect to a posted `responseUrl`. Default to false, yielding redirects to the configured `SuccessRedirectUrl`. |
-| SuccessRedirectUrl    | [optional] A fixed redirect URL with which to respond to a caller, if the function either disallows user-supplied redirect URLs, or no direct URL is supplied. |
+| AllowUserRedirectUrls | [optional] A boolean value indicating whether the function should redirect to a posted `redirectUrl`. Default to false, yielding redirects to the configured `SuccessRedirectUrl`. |
+| SuccessRedirectUrl    | [optional] A fixed redirect URL with which to respond to a caller, if the function either disallows user-supplied redirect URLs, or no redirect URL is supplied. |
 
 
 ## Use
@@ -44,12 +44,12 @@ The function will respond with one of the following:
 |--------|--------|
 | 200    | Email sent successfully, when redirecting is not enabled. |
 | 302    | Email sent successfully, when redirecting is enabled. |
+| 400    | A piece of required information was either missing, or invalid. A collection of new-line-separated error messages is returned to say what. |
 | 500    | Something unexpected went wrong. |
-| 400    | A piece of required information was either missing, or invalid. A collection of new-line-separated error messages is returned to say what. 
 
 ## Redirect Response Examples
 
-#### Redirect responses disabled
+#### Redirect responses disabled:
 
 - `UseRedirectResponse`: false
 - `AllowUserRedirectUrls`: false
@@ -57,7 +57,7 @@ The function will respond with one of the following:
 - `SuccessRedirectUrl`: [not configured]
 - _Response_: **OK** (200), as `UseRedirectResponse` is false.
 
-#### User redirect response URL disallowed
+#### User redirect response URL disallowed:
 
 - `UseRedirectResponse`: true
 - `AllowUserRedirectUrls`: false
@@ -65,7 +65,7 @@ The function will respond with one of the following:
 - `SuccessRedirectUrl`: /contact-thank-you
 - _Response_: **Redirect** (302) to /contact-thank-you, as `AllowUserRedirectUrls` is false.
 
-#### User redirect response URL allowed and supplied
+#### User redirect response URL allowed and supplied:
 
 - `UseRedirectResponse`: true
 - `AllowUserRedirectUrls`: true
@@ -73,7 +73,7 @@ The function will respond with one of the following:
 - `SuccessRedirectUrl`: /contact-thank-you
 - _Response_: **Redirect** (302) to /special-thank-you, as `AllowUserRedirectUrls` is true and a URL was supplied.
 
-#### User redirect response URL allowed, but not supplied
+#### User redirect response URL allowed, but not supplied:
 
 - `UseRedirectResponse`: true
 - `AllowUserRedirectUrls`: true
@@ -81,7 +81,7 @@ The function will respond with one of the following:
 - `SuccessRedirectUrl`: /contact-thank-you
 - _Response_: **Redirect** (302) to /contact-thank-you, as `AllowUserRedirectUrls` is true, but no URL was supplied.
 
-#### User redirect response URL allowed, not supplied, and required
+#### User redirect response URL allowed, not supplied, and required:
 
 - `UseRedirectResponse`: true
 - `AllowUserRedirectUrls`: true
