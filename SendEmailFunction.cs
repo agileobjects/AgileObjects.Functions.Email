@@ -56,27 +56,27 @@ namespace AgileObjects.Functions.Email
 
                 log.LogInformation("Email sent.");
 
+                string redirectUrl;
+
                 if (_configuration.UseOkResponse)
                 {
+                    if (TryGetRedirectUrl(form, out redirectUrl))
+                    {
+                        return new OkObjectResult(new
+                        {
+                            Redirect = redirectUrl
+                        });
+                    }
+
                     return new OkResult();
                 }
 
-                if (_configuration.AllowUserRedirectUrls)
+                if (TryGetRedirectUrl(form, out redirectUrl))
                 {
-                    if (form.TryGetValue("redirectUrl", out var url))
-                    {
-                        log.LogInformation($"Redirecting to '{url}'.");
-
-                        return new RedirectResult(url);
-                    }
-
-                    if (_configuration.HasNoSuccessRedirectUrl)
-                    {
-                        return new BadRequestErrorMessageResult("Missing redirect URL.");
-                    }
+                    return new RedirectResult(redirectUrl);
                 }
 
-                return new RedirectResult(_configuration.SuccessRedirectUrl);
+                return new BadRequestErrorMessageResult("Missing redirect URL.");
             }
             catch (Exception ex)
             {
@@ -143,6 +143,25 @@ namespace AgileObjects.Functions.Email
             {
                 return true;
             }
+        }
+
+        private bool TryGetRedirectUrl(IFormCollection form, out string url)
+        {
+            if (_configuration.AllowUserRedirectUrls &&
+                form.TryGetValue("redirectUrl", out var urlValue))
+            {
+                url = urlValue;
+                return true;
+            }
+
+            if (_configuration.HasNoSuccessRedirectUrl)
+            {
+                url = null;
+                return false;
+            }
+
+            url = _configuration.SuccessRedirectUrl;
+            return true;
         }
     }
 }
