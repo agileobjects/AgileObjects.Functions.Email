@@ -7,9 +7,16 @@ A .NET Core 3.1 Azure Function to send an email to a configured recipient.
 1. Create an [Azure Portal account](https://portal.azure.com).
 2. Fork this repository.
 3. [Create an Azure Function](https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-first-azure-function)
-4. [optional] [Set up your function to deploy from GitHub](https://docs.microsoft.com/en-us/azure/azure-functions/scripts/functions-cli-create-function-app-github-continuous). 
-   Point it to your fork of this repository.
-5. Set up the following [App Settings for your Azure Function App](https://docs.microsoft.com/en-us/azure/azure-functions/functions-how-to-use-azure-function-app-settings).
+4. Set up your function to deploy [from GitHub](https://docs.microsoft.com/en-us/azure/azure-functions/scripts/functions-cli-create-function-app-github-continuous),
+   pointed to your fork of this repository, or [publish it from Visual Studio](https://tutorials.visualstudio.com/first-azure-function/publish) 
+   from your repository fork.
+
+
+## Configuration
+
+The Function can be configured to require a subject, and to respond with OK (200, for AJAX) or redirect 
+(302, for form post) responses. The following App Settings are used, and should be 
+[configured](https://docs.microsoft.com/en-us/azure/azure-functions/functions-how-to-use-azure-function-app-settings):
 
 | Setting               | Value |
 |-----------------------|-------|
@@ -26,7 +33,7 @@ A .NET Core 3.1 Azure Function to send an email to a configured recipient.
 
 ## Use
 
-Use an HTML form or AJAX call to post the following data to the function URL:
+Use an AJAX call or HTML form to post the following data to the function URL:
 
 | Name        | Value |
 |-------------|-------|
@@ -38,7 +45,7 @@ Use an HTML form or AJAX call to post the following data to the function URL:
 
 ## Responses
 
-The function will respond with one of the following:
+Depending on configuration and posted data, the function will respond with one of the following:
 
 | Status | Reason |
 |--------|--------|
@@ -48,6 +55,9 @@ The function will respond with one of the following:
 | 500    | Something unexpected went wrong. |
 
 ## Redirect Response Examples
+
+For clarity, here's some examples of what the Function will return, based on how you configure it and 
+the data it's given:
 
 #### Redirect responses disabled:
 
