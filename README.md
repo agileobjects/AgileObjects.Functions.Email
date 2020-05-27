@@ -15,7 +15,9 @@ A .NET Core 3.1 Azure Function to send an email to a configured recipient.
 ## Configuration
 
 The Function can be configured to require a subject, and to respond with OK (200, for AJAX) or redirect 
-(302, for form post) responses. The following App Settings are used, and should be 
+(302, for form post) responses. OK responses will include a response body containing 
+`{ Redirect: 'SuccessRedirectUrl' }` if `SuccessRedirectUrl` is configured.
+The following App Settings are used, and should be 
 [configured](https://docs.microsoft.com/en-us/azure/azure-functions/functions-how-to-use-azure-function-app-settings):
 
 | Setting               | Value |
@@ -27,7 +29,7 @@ The Function can be configured to require a subject, and to respond with OK (200
 | IsSubjectRequired     | [optional] A boolean value indicating whether the posted form data must contain an email subject. Defaults to false. |
 | FallbackSubject       | [optional] The subject for the email to send, if one is optional and not supplied in posted form data. Defaults to 'Email received'. |
 | UseRedirectResponse   | [optional] A boolean value indicating whether the function should respond with a redirect (302) response or an OK (200) response. Default to false, yielding OK responses. |
-| AllowUserRedirectUrls | [optional] A boolean value indicating whether the function should redirect to a posted `redirectUrl`. Default to false, yielding redirects to the configured `SuccessRedirectUrl`. |
+| AllowUserRedirectUrls | [optional] A boolean value indicating whether the function should support a posted `redirectUrl`. Default to false, yielding redirects to the configured `SuccessRedirectUrl`. |
 | SuccessRedirectUrl    | [optional] A fixed redirect URL with which to respond to a caller, if the function either disallows user-supplied redirect URLs, or no redirect URL is supplied. |
 
 
@@ -41,7 +43,7 @@ Use an AJAX call or HTML form to post the following data to the function URL:
 | email       | The sender's email address. |
 | subject     | [optional] The subject of the sender's email. If no value is supplied and a subject is optional, the `FallbackSubject` setting will be used to provide the email subject. |
 | message     | The sender's message. |
-| redirectUrl | [optional] The redirect URL with which to respond to the caller, if a redirect response is desired and enabled. |
+| redirectUrl | [optional] The redirect URL with which to respond to the caller, if posted redirect URLs are supported. |
 
 ## Responses
 
@@ -59,13 +61,22 @@ Depending on configuration and posted data, the function will respond with one o
 For clarity, here's some examples of what the Function will return, based on how you configure it and 
 the data it's given:
 
-#### Redirect responses disabled:
+#### Redirect responses disabled, no SuccessRedirectUrl:
 
 - `UseRedirectResponse`: false
 - `AllowUserRedirectUrls`: false
 - `redirectUrl`: [not supplied]
 - `SuccessRedirectUrl`: [not configured]
 - _Response_: **OK** (200), as `UseRedirectResponse` is false.
+
+#### Redirect responses disabled, configured SuccessRedirectUrl:
+
+- `UseRedirectResponse`: false
+- `AllowUserRedirectUrls`: false
+- `redirectUrl`: [not supplied]
+- `SuccessRedirectUrl`: /contact-thank-you
+- _Response_: **OK** (200) with response body `{ Redirect: '/contact-thank-you' }`, as 
+  `UseRedirectResponse` is false, but `SuccessRedirectUrl` is configured.
 
 #### User redirect response URL disallowed:
 
