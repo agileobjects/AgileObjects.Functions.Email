@@ -4,21 +4,31 @@ namespace AgileObjects.Functions.Email
     using System.Net.Mail;
     using System.Threading.Tasks;
     using System.Web.Http;
+    using Configuration;
+    using Http;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Extensions.Logging;
+    using Smtp;
 
-    public class SendEmail
+    public class SendEmailFunction
     {
-        private static readonly string _functionName = typeof(SendEmail).FullName;
+        private static readonly string _functionName = typeof(SendEmailFunction).FullName;
 
-        private readonly SmtpSettings _settings;
+        private readonly FunctionConfiguration _configuration;
+        private readonly IRequestReader _requestReader;
+        private readonly Func<ISmtpClient> _smtpClientFactory;
 
-        public SendEmail(SmtpSettings settings)
+        public SendEmailFunction(
+            FunctionConfiguration configuration,
+            IRequestReader requestReader,
+            Func<ISmtpClient> smtpClientFactory)
         {
-            _settings = settings;
+            _configuration = configuration;
+            _requestReader = requestReader;
+            _smtpClientFactory = smtpClientFactory;
         }
 
         [FunctionName("SendEmail")]
@@ -28,36 +38,30 @@ namespace AgileObjects.Functions.Email
         {
             log.LogTrace(_functionName + " triggered");
 
-            var form = await request.ReadFormAsync();
+            var form = await _requestReader.ReadFormAsync(request);
 
             if (!TryGetEmailDetails(form, out var mail, out var errorMessage))
             {
                 return new BadRequestErrorMessageResult(errorMessage);
             }
 
-            var client = new SmtpClient(_settings.Host)
-            {
-                EnableSsl = false,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                UseDefaultCredentials = false,
-                Credentials = _settings.Credentials
-            };
+            var client = _smtpClientFactory.Invoke();
 
             try
             {
                 using (client)
                 {
-                    client.Send(mail);
+                    await client.SendAsync(mail);
                 }
 
                 log.LogInformation("Email sent.");
 
-                if (_settings.UseOkResponse)
+                if (_configuration.UseOkResponse)
                 {
                     return new OkResult();
                 }
 
-                if (_settings.AllowUserRedirectUrls)
+                if (_configuration.AllowUserRedirectUrls)
                 {
                     if (form.TryGetValue("redirectUrl", out var url))
                     {
@@ -66,13 +70,13 @@ namespace AgileObjects.Functions.Email
                         return new RedirectResult(url);
                     }
 
-                    if (_settings.HasNoSuccessRedirectUrl)
+                    if (_configuration.HasNoSuccessRedirectUrl)
                     {
                         return new BadRequestErrorMessageResult("Missing redirect URL.");
                     }
                 }
 
-                return new RedirectResult(_settings.SuccessRedirectUrl);
+                return new RedirectResult(_configuration.SuccessRedirectUrl);
             }
             catch (Exception ex)
             {
@@ -84,7 +88,7 @@ namespace AgileObjects.Functions.Email
 
         private bool TryGetEmailDetails(IFormCollection form, out MailMessage mail, out string errorMessage)
         {
-            var subjectRequired = _settings.IsSubjectRequired;
+            var subjectRequired = _configuration.IsSubjectRequired;
 
             if (!form.TryGetValue("name", out var name) ||
                 !form.TryGetValue("email", out var email) ||
@@ -115,12 +119,12 @@ namespace AgileObjects.Functions.Email
 
             if (string.IsNullOrWhiteSpace(subject))
             {
-                subject = _settings.FallbackSubject;
+                subject = _configuration.FallbackSubject;
             }
 
             mail = new MailMessage(
                 $"{name} {email}",
-                _settings.Recipient,
+                _configuration.Recipient,
                 subject.ToString(),
                 message);
 

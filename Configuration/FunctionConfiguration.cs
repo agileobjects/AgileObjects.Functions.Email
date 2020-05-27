@@ -1,13 +1,7 @@
-namespace AgileObjects.Functions.Email
+namespace AgileObjects.Functions.Email.Configuration
 {
-    using System.Net;
-
-    public class SmtpSettings
+    public class FunctionConfiguration
     {
-        public string Host { get; set; }
-        
-        public ICredentialsByHost Credentials { get; set; }
-        
         public string Recipient { get; set; }
 
         public bool IsSubjectRequired { get; set; }

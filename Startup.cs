@@ -4,10 +4,9 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 
 namespace AgileObjects.Functions.Email
 {
-    using System.Net;
+    using Configuration;
     using Microsoft.Azure.Functions.Extensions.DependencyInjection;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
 
     public class Startup : FunctionsStartup
     {
@@ -23,23 +22,7 @@ namespace AgileObjects.Functions.Email
 
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            var credentials = new NetworkCredential(
-                _configuration["SmtpUsername"],
-                _configuration["SmtpPassword"]);
-
-            var settings = new SmtpSettings
-            {
-                Host = _configuration["SmtpHost"],
-                Credentials = credentials,
-                Recipient = _configuration["Recipient"],
-                IsSubjectRequired = _configuration.GetValue("IsSubjectRequired", defaultValue: false),
-                FallbackSubject = _configuration["FallbackSubject"] ?? "Email received",
-                UseRedirectResponse = _configuration.GetValue("UseRedirectResponse", defaultValue: false),
-                AllowUserRedirectUrls = _configuration.GetValue("AllowUserRedirectUrls", defaultValue: false),
-                SuccessRedirectUrl = _configuration["SuccessRedirectUrl"]
-            };
-
-            builder.Services.AddSingleton(settings);
+            builder.Services.AddSendEmailFunction(_configuration);
         }
     }
 }
