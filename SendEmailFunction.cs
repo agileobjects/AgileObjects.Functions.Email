@@ -38,7 +38,16 @@ namespace AgileObjects.Functions.Email
         {
             log.LogTrace(_functionName + " triggered");
 
-            var form = await _requestReader.ReadFormAsync(request);
+            IFormCollection form;
+
+            try
+            {
+                form = await _requestReader.ReadFormAsync(request);
+            }
+            catch (InvalidOperationException)
+            {
+                return new BadRequestErrorMessageResult("Invalid form data");
+            }
 
             if (!TryGetEmailDetails(form, out var mail, out var errorMessage))
             {
