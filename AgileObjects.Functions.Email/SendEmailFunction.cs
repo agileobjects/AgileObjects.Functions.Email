@@ -1,6 +1,8 @@
 namespace AgileObjects.Functions.Email
 {
     using System;
+    using System.Collections.Generic;
+    using System.Net.Http;
     using System.Net.Mail;
     using System.Threading.Tasks;
     using System.Web.Http;
@@ -11,6 +13,7 @@ namespace AgileObjects.Functions.Email
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Extensions.Logging;
+    using Newtonsoft.Json;
     using Smtp;
 
     public class SendEmailFunction
@@ -52,6 +55,11 @@ namespace AgileObjects.Functions.Email
             if (!TryGetEmailDetails(form, out var mail, out var errorMessage))
             {
                 return new BadRequestErrorMessageResult(errorMessage);
+            }
+
+            if (!await RecaptchaOk(form))
+            {
+                return new BadRequestErrorMessageResult("ReCAPTCHA verification failed. Please try again.");
             }
 
             var client = _smtpClientFactory.Invoke();
@@ -154,6 +162,53 @@ namespace AgileObjects.Functions.Email
             }
         }
 
+        private Task<bool> RecaptchaOk(IFormCollection form)
+        {
+            if (!_configuration.VerifyReCaptcha)
+            {
+                return Task.FromResult(true);
+            }
+
+            var userResponse = form["g-recaptcha-response"];
+
+            if (string.IsNullOrWhiteSpace(userResponse))
+            {
+                return Task.FromResult(false);
+            }
+
+            return VerifyRecaptcha(userResponse);
+        }
+
+        private async Task<bool> VerifyRecaptcha(string userResponse)
+        {
+            var requestContent = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["secret"] = _configuration.ReCaptchaV2Key,
+                ["response"] = userResponse
+            });
+
+            var response = await new HttpClient()
+                .PostAsync("https://www.google.com/recaptcha/api/siteverify", requestContent);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return false;
+            }
+
+            var responseContent = await response
+                .Content
+                .ReadAsStringAsync();
+
+            if (string.IsNullOrEmpty(responseContent))
+            {
+                return false;
+            }
+
+            var responseObject = JsonConvert.DeserializeObject<ReCaptchaResponse>(responseContent);
+
+            return responseObject?.Success == true;
+        }
+
         private bool TryGetRedirectUrl(IFormCollection form, out string url)
         {
             if (_configuration.AllowUserRedirectUrls &&
@@ -171,6 +226,13 @@ namespace AgileObjects.Functions.Email
 
             url = _configuration.SuccessRedirectUrl;
             return true;
+        }
+
+        private class ReCaptchaResponse
+        {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
+            [JsonProperty(PropertyName = "success")]
+            public bool Success { get; set; }
         }
     }
 }

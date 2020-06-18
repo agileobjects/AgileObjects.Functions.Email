@@ -26,7 +26,8 @@
                 FallbackSubject = configuration["FallbackSubject"] ?? "Email received",
                 UseRedirectResponse = configuration.GetValue("UseRedirectResponse", defaultValue: false),
                 AllowUserRedirectUrls = configuration.GetValue("AllowUserRedirectUrls", defaultValue: false),
-                SuccessRedirectUrl = configuration["SuccessRedirectUrl"]
+                SuccessRedirectUrl = configuration["SuccessRedirectUrl"],
+                ReCaptchaV2Key = configuration["ReCaptchaV2Key"]
             };
 
             return services

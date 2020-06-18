@@ -17,5 +17,9 @@ namespace AgileObjects.Functions.Email.Configuration
         public bool HasNoSuccessRedirectUrl => string.IsNullOrEmpty(SuccessRedirectUrl);
 
         public string SuccessRedirectUrl { get; set; }
+
+        public bool VerifyReCaptcha => !string.IsNullOrEmpty(ReCaptchaV2Key);
+
+        public string ReCaptchaV2Key { get; set; }
     }
 }
