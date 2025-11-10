@@ -1,23 +1,23 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="MSTest.Sdk/4.0.1">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
+    <UseVSTest>true</UseVSTest>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.1.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
-    <PackageReference Include="Moq" Version="4.14.1" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
+    <PackageReference Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="1.2.1">
+    <PackageReference Include="coverlet.msbuild" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="AgileObjects.Tezdi.Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="0.0.0-g596750fa0e" />
+    <PackageReference Include="AgileObjects.Tezdi.Moq" Version="0.0.0-g596750fa0e" />
+    <PackageReference Include="FluentAssertions" Version="7.2.0" />
   </ItemGroup>
 
   <ItemGroup>
