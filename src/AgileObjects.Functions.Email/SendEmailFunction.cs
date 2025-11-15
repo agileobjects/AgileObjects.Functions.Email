@@ -64,6 +64,11 @@ public sealed class SendEmailFunction
             return new BadRequestObjectResult(errorMessage);
         }
 
+        if (!TryGetValidResult(form, out var result))
+        {
+            return result;
+        }
+
         if (!await RecaptchaOkAsync(form, cxlToken).ConfigureAwait(false))
         {
             return new BadRequestObjectResult("ReCAPTCHA verification failed. Please try again.");
@@ -77,18 +82,7 @@ public sealed class SendEmailFunction
 
             _logger.LogInformation("Email sent");
 
-            string? redirectUrl;
-
-            if (Settings.UseOkResponse)
-            {
-                return TryGetRedirectUrl(form, out redirectUrl)
-                    ? new OkObjectResult(new RedirectResponse { Redirect = redirectUrl })
-                    : new NoContentResult();
-            }
-
-            return TryGetRedirectUrl(form, out redirectUrl)
-                ? new RedirectResult(redirectUrl)
-                : new BadRequestObjectResult("Missing redirect URL");
+            return result;
         }
         catch (Exception ex)
         {
@@ -165,6 +159,31 @@ public sealed class SendEmailFunction
         {
             return true;
         }
+    }
+
+    private bool TryGetValidResult(
+        IFormCollection form,
+        out IActionResult result)
+    {
+        string? redirectUrl;
+
+        if (Settings.UseOkResponse)
+        {
+            result = TryGetRedirectUrl(form, out redirectUrl)
+                ? new OkObjectResult(new RedirectResponse { Redirect = redirectUrl })
+                : new NoContentResult();
+
+            return true;
+        }
+
+        if (TryGetRedirectUrl(form, out redirectUrl))
+        {
+            result = new RedirectResult(redirectUrl);
+            return true;
+        }
+
+        result = new BadRequestObjectResult("Missing redirect URL.");
+        return false;
     }
 
     private Task<bool> RecaptchaOkAsync(
