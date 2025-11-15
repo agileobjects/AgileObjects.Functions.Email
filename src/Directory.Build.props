@@ -1,0 +1,28 @@
+﻿<Project>
+
+  <PropertyGroup>
+    <Company>AgileObjects Ltd</Company>
+    <Authors>AgileObjects Ltd</Authors>
+    <Product>AgileObjects.Tezdi</Product>
+    <Copyright>Copyright © AgileObjects Ltd 2025</Copyright>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/agileobjects/AgileObjects.Functions.Email</RepositoryUrl>
+    <LangVersion>preview</LangVersion>
+    <ImplicitUsings>true</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);NU1901</NoWarn>
+    <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

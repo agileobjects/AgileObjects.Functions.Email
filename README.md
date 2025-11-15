@@ -23,6 +23,7 @@ The following App Settings are used, and should be
 | Setting               | Value |
 |-----------------------|-------|
 | SmtpHost              | The URL of the email server to use to send the emails. |
+| SmtpPort              | The port number of the email server to use to send the emails. |
 | SmtpUsername          | The username of the account to use to send the emails. |
 | SmtpPassword          | The password of the account to use to send the emails. |
 | Recipient             | The email address to which the function will send emails. |
