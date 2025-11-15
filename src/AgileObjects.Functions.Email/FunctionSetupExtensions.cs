@@ -40,8 +40,8 @@ internal static class FunctionSetupExtensions
     {
         return services.ConfigureHttpJsonOptions(options =>
         {
-            options.SerializerOptions.TypeInfoResolver =
-                FunctionAppSerializerContext.Default;
+            options.SerializerOptions.TypeInfoResolverChain
+                .Insert(0, FunctionAppSerializerContext.Default);
         });
     }
 
