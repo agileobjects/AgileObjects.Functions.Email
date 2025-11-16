@@ -15,9 +15,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="AgileObjects.Tezdi.Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="0.1.5" />
-    <PackageReference Include="AgileObjects.Tezdi.Microsoft.Extensions.Logging" Version="0.1.5" />
-    <PackageReference Include="AgileObjects.Tezdi.Moq" Version="0.1.5" />
+    <PackageReference Include="AgileObjects.Tezdi.Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="0.1.7" />
+    <PackageReference Include="AgileObjects.Tezdi.Microsoft.Extensions.Logging" Version="0.1.7" />
+    <PackageReference Include="AgileObjects.Tezdi.Moq" Version="0.1.7" />
     <PackageReference Include="FluentAssertions" Version="7.2.0" />
   </ItemGroup>
 

@@ -62,10 +62,10 @@ internal static class TestExtensions
         this ITezdiContext tezdiContext,
         Func<Times>? times = null)
     {
-        tezdiContext.GetMock<ISmtpClient>().Verify(
+        tezdiContext.Verify<ISmtpClient>(
             smtp => smtp.SendAsync(
                 It.IsAny<MimeMessage>(),
                 It.IsAny<CancellationToken>()),
-            times ?? Times.Once);
+            times);
     }
 }

@@ -230,8 +230,6 @@ public sealed class SendEmailFunctionTests :
                 FallbackSubject = "You got mail!"
             });
 
-            var mockSmtpClient = context.Mock<ISmtpClient>();
-
             using var httpRequest = CreateHttpRequest(
                 name: "Captain Test",
                 email: "test@test.com",
@@ -249,7 +247,7 @@ public sealed class SendEmailFunctionTests :
                 .Should().HaveEmptyContentAsync()
                 .ConfigureAwait(false);
 
-            mockSmtpClient.Verify(
+            context.Verify<ISmtpClient>(
                 smtp => smtp.SendAsync(
                     It.Is<MimeMessage>(msg =>
                         msg.From.Equals("Captain Test", "test@test.com") &&
